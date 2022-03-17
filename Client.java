@@ -3,7 +3,7 @@ import java.io.*;
 
 import java.util.concurrent.TimeUnit;
 
-public class TCPClient{
+public class Client{
   public static void main(String args[]){
     while  (true) {
       try{
@@ -16,7 +16,7 @@ public class TCPClient{
 
         String str = (String)din.readLine();
         System.out.println("RCVD: "+str);
-
+        
         String username = System.getProperty("user.name");
         dout.write(("AUTH " + username + "\n").getBytes());
 
