@@ -12,21 +12,27 @@ public class Client{
         BufferedReader din=new BufferedReader(new InputStreamReader(s.getInputStream()));
 
         dout.write(("HELO\n").getBytes());
+        dout.flush();
         System.out.println("SENT: HELO");
 
         String str = (String)din.readLine();
         System.out.println("RCVD: "+str);
-        
+
         String username = System.getProperty("user.name");
         dout.write(("AUTH " + username + "\n").getBytes());
+        dout.flush();
+        System.out.println("Authenticated: " +username);
+
 
         dout.write(("REDY\n").getBytes());
+        dout.flush();
         System.out.println("SENT: REDY");
 
         str = (String)din.readLine();
         System.out.println("RCVD: "+str);
 
         dout.write(("QUIT\n").getBytes());
+        dout.flush();
         System.out.println("SENT: QUIT");
 
         str = (String)din.readLine();
