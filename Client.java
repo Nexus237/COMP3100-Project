@@ -32,18 +32,15 @@ public class Client {
         dout.flush();
         System.out.println("SENT: 'REDY'");
 
-        // dout.write(("SCHD 0 super-silk 0\n").getBytes());
-        // dout.flush();
-
         str = (String) din.readLine();
         System.out.println("RCVD: '" + str + "'");
 
-        String[] JOBN = str.split(" ");
-        String jobID = JOBN[2];
-        String core = JOBN[JOBN.length - 3];
-        String memory = JOBN[JOBN.length - 2];
-        String disk = JOBN[JOBN.length - 1];
-        System.out.println("\n# Job ID: " + jobID + ", Core: " + core + ", Memory: " + memory + ", Disk: " + disk + "\n");
+        String[] currCommand = str.split(" ");
+        String currCommandType = currCommand[0];
+        String core = currCommand[currCommand.length - 3];
+        String memory = currCommand[currCommand.length - 2];
+        String disk = currCommand[currCommand.length - 1];
+        System.out.println("\n# Core: " + core + ", Memory: " + memory + ", Disk: " + disk + "\n");
 
         dout.write(("GETS Capable " + core + " " + memory + " " + disk + "\n").getBytes());
         dout.flush();
@@ -53,24 +50,36 @@ public class Client {
         System.out.println("RCVD: '" + str + "'");
 
         String[] DATA = str.split(" ");
-        int records = Integer.valueOf(DATA[1]);
+        int records = Integer.parseInt(DATA[1]);
         System.out.println("\n# Number of Records: " + records + "\n");
 
         dout.write(("OK\n").getBytes());
         dout.flush();
         System.out.println("SENT: 'OK'");
 
+        String largestServerType = "";
+        int firstServerID = 0;
+        int largestCore = 0;
+        int numLargestServer = 0;
+
         for (int i = 0; i < records; i++) {
           str = (String) din.readLine();
           System.out.println("RCVD: '" + str + "'");
+
+          String[] currServer = str.split(" ");
+          int currCore = Integer.parseInt(currServer[4]);
+
+          if (currCore > largestCore) {
+            largestServerType = currServer[0];
+            firstServerID = Integer.parseInt(currServer[1]);
+            largestCore = Integer.parseInt(currServer[4]);
+          }
+
+          if (currServer[0].equals(largestServerType)) {
+            numLargestServer = Integer.parseInt(currServer[1]);
+          }
         }
 
-        // Need to implement a method to find the largest server
-        String[] SCHD = str.split(" ");
-        String serverType = SCHD[0];
-        String serverID = SCHD[1];
-        System.out.println("\n# Server Type: " + serverType + ", Server ID: " + serverID + "\n");
-
         dout.write(("OK\n").getBytes());
         dout.flush();
         System.out.println("SENT: 'OK'");
@@ -78,19 +87,36 @@ public class Client {
         str = (String) din.readLine();
         System.out.println("RCVD: '" + str + "'");
 
-        dout.write(("SCHD " + jobID + " " + serverType + " " + serverID + "\n").getBytes());
-        dout.flush();
-        System.out.println("SENT: 'SCHD " + jobID + " " + serverType + " " + serverID + "'");
+        int jobID = 0;
+        int serverID = firstServerID;
 
-        str = (String) din.readLine();
-        System.out.println("RCVD: '" + str + "'");
+        while (!(currCommandType.equals("NONE"))) {
+          if (currCommandType.equals("JOBN")) {
+            dout.write(("SCHD " + jobID + " " + largestServerType + " " + serverID + "\n").getBytes());
+            dout.flush();
+            System.out.println("SENT: 'SCHD " + jobID + " " + largestServerType + " " + serverID + "'");
 
-        dout.write(("OK\n").getBytes());
-        dout.flush();
-        System.out.println("SENT: 'OK'");
+            str = (String) din.readLine();
+            System.out.println("RCVD: '" + str + "'");
 
-        str = (String) din.readLine();
-        System.out.println("RCVD: '" + str + "'");
+            if (serverID + 1 <= numLargestServer) {
+              serverID++;
+            } else {
+              serverID = firstServerID;
+            }
+
+            jobID++;
+          }
+          dout.write(("REDY\n").getBytes());
+          dout.flush();
+          System.out.println("SENT: 'REDY'");
+
+          str = (String) din.readLine();
+          System.out.println("RCVD: '" + str + "'");
+
+          currCommand = str.split(" ");
+          currCommandType = currCommand[0];
+        }
 
         dout.write(("QUIT\n").getBytes());
         dout.flush();
