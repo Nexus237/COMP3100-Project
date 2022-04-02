@@ -6,11 +6,22 @@ public class Client {
   public static void main(String args[]) {
     while (true) {
       try {
+        String ANSI_GREEN = "\u001B[32m";
+        String ANSI_RED = "\u001B[31m";
+        String ANSI_RESET = "\u001B[0m";
+
         Socket s = new Socket("127.0.0.1", 50000);
         DataOutputStream dout = new DataOutputStream(s.getOutputStream());
         BufferedReader din = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
-        System.out.println("\nConnection Established Successfully!\n");
+        System.out.println(ANSI_GREEN + "\n# ------------------------------------------------");
+
+        System.out.println("\n# Target IP: " + s.getInetAddress());
+        System.out.println("# Target Port: " + s.getPort());
+
+        System.out.println("\n# ------------------------------------------------");
+
+        System.out.println("\n# Connection Established Successfully!\n" + ANSI_RESET);
 
         dout.write(("HELO\n").getBytes());
         dout.flush();
@@ -37,10 +48,11 @@ public class Client {
 
         String[] currCommand = str.split(" ");
         String currCommandType = currCommand[0];
+
         String core = currCommand[currCommand.length - 3];
         String memory = currCommand[currCommand.length - 2];
         String disk = currCommand[currCommand.length - 1];
-        System.out.println("\n# Core: " + core + ", Memory: " + memory + ", Disk: " + disk + "\n");
+        System.out.println(ANSI_GREEN +"\n# Core: " + core + ", Memory: " + memory + ", Disk: " + disk + "\n" + ANSI_RESET);
 
         dout.write(("GETS Capable " + core + " " + memory + " " + disk + "\n").getBytes());
         dout.flush();
@@ -51,7 +63,7 @@ public class Client {
 
         String[] DATA = str.split(" ");
         int records = Integer.parseInt(DATA[1]);
-        System.out.println("\n# Number of Records: " + records + "\n");
+        System.out.println(ANSI_GREEN + "\n# Number of Records: " + records + "\n" + ANSI_RESET);
 
         dout.write(("OK\n").getBytes());
         dout.flush();
@@ -69,7 +81,7 @@ public class Client {
           String[] currServer = str.split(" ");
           int currCore = Integer.parseInt(currServer[4]);
 
-          if (currCore > largestCore) {
+          if (largestCore < currCore) {
             largestServerType = currServer[0];
             firstServerID = Integer.parseInt(currServer[1]);
             largestCore = Integer.parseInt(currServer[4]);
@@ -79,6 +91,10 @@ public class Client {
             numLargestServer = Integer.parseInt(currServer[1]);
           }
         }
+
+        int adjNumLargestServer = numLargestServer + 1;
+        System.out.println(ANSI_GREEN + "\n# Largest Server Type (first instance): " + largestServerType);
+        System.out.println("# Number of '" + largestServerType + "' servers: " + adjNumLargestServer + "\n" + ANSI_RESET);
 
         dout.write(("OK\n").getBytes());
         dout.flush();
@@ -123,7 +139,8 @@ public class Client {
         System.out.println("SENT: 'QUIT'");
 
         str = (String) din.readLine();
-        System.out.println("\nConnection Terminated...\n");
+
+        System.out.println(ANSI_RED + "\n# Connection Terminated...\n" + ANSI_RESET);
 
         dout.close();
         s.close();
