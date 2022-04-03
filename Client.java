@@ -6,11 +6,12 @@ public class Client {
   public static void main(String args[]) {
     while (true) {
       try {
+        // ANSI Escape Codes for coloured outputs
         String ANSI_GREEN = "\u001B[32m";
         String ANSI_RED = "\u001B[31m";
         String ANSI_RESET = "\u001B[0m";
 
-        Socket s = new Socket("127.0.0.1", 50000);
+        Socket s = new Socket("127.0.0.1", 50000); // Connect to server with specified IP and port
         DataOutputStream dout = new DataOutputStream(s.getOutputStream());
         BufferedReader din = new BufferedReader(new InputStreamReader(s.getInputStream()));
 
@@ -23,6 +24,7 @@ public class Client {
 
         System.out.println("\n# Connection Established Successfully!\n" + ANSI_RESET);
 
+        // Handshake Protocol ('HELO' -> 'AUTH')
         dout.write(("HELO\n").getBytes());
         dout.flush();
         System.out.println("SENT: 'HELO'");
@@ -38,7 +40,9 @@ public class Client {
 
         str = (String) din.readLine();
         System.out.println("RCVD: '" + str + "'");
+        // End of Handshake Protocol
 
+        // Send REDY for jobs list
         dout.write(("REDY\n").getBytes());
         dout.flush();
         System.out.println("SENT: 'REDY'");
@@ -46,14 +50,16 @@ public class Client {
         str = (String) din.readLine();
         System.out.println("RCVD: '" + str + "'");
 
-        String[] currCommand = str.split(" ");
-        String currCommandType = currCommand[0];
+        String[] currCommand = str.split(" "); // Split the received command into a string array (core, memory, disk, etc.)
+        String currCommandType = currCommand[0]; // Command Type (either 'JOBN' or 'NONE')
 
+        // For JOBN, store the information of the job to variables
         String core = currCommand[currCommand.length - 3];
         String memory = currCommand[currCommand.length - 2];
         String disk = currCommand[currCommand.length - 1];
-        System.out.println(ANSI_GREEN +"\n# Core: " + core + ", Memory: " + memory + ", Disk: " + disk + "\n" + ANSI_RESET);
+        System.out.println(ANSI_GREEN + "\n# Core: " + core + ", Memory: " + memory + ", Disk: " + disk + "\n" + ANSI_RESET);
 
+        // Queries the server information based on core, memory & disk
         dout.write(("GETS Capable " + core + " " + memory + " " + disk + "\n").getBytes());
         dout.flush();
         System.out.println("SENT: 'GETS Capable " + core + " " + memory + " " + disk + "'");
@@ -61,38 +67,40 @@ public class Client {
         str = (String) din.readLine();
         System.out.println("RCVD: '" + str + "'");
 
-        String[] DATA = str.split(" ");
-        int records = Integer.parseInt(DATA[1]);
+        String[] DATA = str.split(" "); // DATA nRecs recLen
+        int records = Integer.parseInt(DATA[1]); // Number of records derived from the response ('DATA') of the server
         System.out.println(ANSI_GREEN + "\n# Number of Records: " + records + "\n" + ANSI_RESET);
 
         dout.write(("OK\n").getBytes());
         dout.flush();
         System.out.println("SENT: 'OK'");
 
-        String largestServerType = "";
-        int firstServerID = 0;
-        int largestCore = 0;
-        int numLargestServer = 0;
+        String largestServerType = ""; // Stores the largest server type (based on core count)
+        int largestCore = 0; // Largest server core count that can run the job
+        int numLargestType = 0; // Number of the largest server type that can run the job
 
+        // Print jobs list
         for (int i = 0; i < records; i++) {
           str = (String) din.readLine();
           System.out.println("RCVD: '" + str + "'");
 
           String[] currServer = str.split(" ");
-          int currCore = Integer.parseInt(currServer[4]);
+          String currServerType = currServer[0]; // Server type for the current server iteration
+          int currCore = Integer.parseInt(currServer[4]); // Server core count for the current server iteration
 
+          // Compare the current server core count to the largest server core count
           if (largestCore < currCore) {
             largestServerType = currServer[0];
-            firstServerID = Integer.parseInt(currServer[1]);
             largestCore = Integer.parseInt(currServer[4]);
           }
 
-          if (currServer[0].equals(largestServerType)) {
-            numLargestServer = Integer.parseInt(currServer[1]);
+          // Checks for the number of servers of the largest server type
+          if (currServerType.equals(largestServerType)) {
+            numLargestType = Integer.parseInt(currServer[1]);
           }
         }
 
-        int adjNumLargestServer = numLargestServer + 1;
+        int adjNumLargestServer = numLargestType + 1; // Temporary variable used to print the number of largest servers
         System.out.println(ANSI_GREEN + "\n# Largest Server Type (first instance): " + largestServerType);
         System.out.println("# Number of '" + largestServerType + "' servers: " + adjNumLargestServer + "\n" + ANSI_RESET);
 
@@ -104,25 +112,28 @@ public class Client {
         System.out.println("RCVD: '" + str + "'");
 
         int jobID = 0;
-        int serverID = firstServerID;
+        int serverID = 0;
 
+        // Job Scheduling
         while (!(currCommandType.equals("NONE"))) {
           if (currCommandType.equals("JOBN")) {
             dout.write(("SCHD " + jobID + " " + largestServerType + " " + serverID + "\n").getBytes());
             dout.flush();
             System.out.println("SENT: 'SCHD " + jobID + " " + largestServerType + " " + serverID + "'");
 
+            jobID++; // Increment jobID for the next job
+
             str = (String) din.readLine();
             System.out.println("RCVD: '" + str + "'");
 
-            if (serverID + 1 <= numLargestServer) {
+            // Checks if the server ID is currently the last server ID of the largest server type
+            if (serverID + 1 <= numLargestType) {
               serverID++;
             } else {
-              serverID = firstServerID;
+              serverID = 0;
             }
-
-            jobID++;
           }
+
           dout.write(("REDY\n").getBytes());
           dout.flush();
           System.out.println("SENT: 'REDY'");
@@ -130,7 +141,7 @@ public class Client {
           str = (String) din.readLine();
           System.out.println("RCVD: '" + str + "'");
 
-          currCommand = str.split(" ");
+          currCommand = str.split(" "); // Split the received command (Checking for 'JOBN' or 'NONE')
           currCommandType = currCommand[0];
         }
 
