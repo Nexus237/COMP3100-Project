@@ -16,5 +16,6 @@
         - `java Client`
         - Run the provided server-side simulator (ds-server) - `./ds-server -c '../../configs/sample-configs/ds-sample-config0[N].xml' -v breif -n` [Sample configuration files are NOT included in this repostiory]
    - To run the demoS1 shell script:
+        - `chmod +x ds-client ds-server`
         - `tar -xvf S1Demo.tar`
         - `./demoS1.sh Client.class -n`
