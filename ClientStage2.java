@@ -53,7 +53,8 @@ public class ClientStage2 {
                 str = (String) din.readLine();
                 System.out.println("RCVD: '" + str + "'");
 
-                String[] currCommand = str.split(" "); // Split the received command into a string array (core, memory, disk, etc.)
+                String[] currCommand = str.split(" "); // Split the received command into a string array (core, memory,
+                                                       // disk, etc.)
                 String currCommandType = currCommand[0]; // Command Type (either 'JOBN' or 'NONE')
 
                 while (true) {
@@ -74,19 +75,43 @@ public class ClientStage2 {
                     System.out.println("RCVD: '" + str + "'");
 
                     String[] DATA = str.split(" "); // DATA nRecs recLen
-                    int records = Integer.parseInt(DATA[1]); // Number of records derived from the response ('DATA') of the server
+                    int records = Integer.parseInt(DATA[1]); // Number of records derived from the response ('DATA') of
+                                                             // the server
                     System.out.println(ANSI_GREEN + "\n# Number of Records: " + records + "\n" + ANSI_RESET);
 
-                    currCommand = str.split(" "); // NEED TO CHECK
+                    // currCommand = str.split(" ");
+
+                    if (records == 0) {
+                        dout.write(("OK\n").getBytes());
+                        dout.flush();
+                        System.out.println("SENT: 'OK'");
+
+                        str = (String) din.readLine();
+                        System.out.println("RCVD: '" + str + "'");
+
+                        dout.write(("GETS Capable " + core + " " + memory + " " + disk + "\n").getBytes());
+                        dout.flush();
+                        System.out.println(ANSI_RED + "SENT: 'GETS Capable " + core + " " + memory + " " + disk + "'"
+                                + ANSI_RESET);
+
+                        str = (String) din.readLine();
+                        System.out.println("RCVD: '" + str + "'");
+
+                        DATA = str.split(" ");
+                        records = Integer.parseInt(DATA[1]);
+                        System.out.println(ANSI_RED + "\n# Number of Records: " + records + "\n" + ANSI_RESET);
+                    }
 
                     dout.write(("OK\n").getBytes());
                     dout.flush();
                     System.out.println("SENT: 'OK'");
 
-                    // String largestServerType = ""; // Stores the largest server type (based on core count)
+                    // String largestServerType = ""; // Stores the largest server type (based on
+                    // core count)
                     String firstServerType = ""; // Stores the first server type
                     // int largestCore = 0; // Largest server core count that can run the job
-                    // int numLargestType = 0; // Number of the largest server type that can run the job
+                    // int numLargestType = 0; // Number of the largest server type that can run the
+                    // job
                     int firstServerID = 0;
 
                     // Print jobs list
@@ -113,7 +138,8 @@ public class ClientStage2 {
                         }
                     }
 
-                    System.out.println(ANSI_GREEN + "\n# First Server Type: " + firstServerType + ", First Server ID: " + firstServerID + "\n" + ANSI_RESET);
+                    System.out.println(ANSI_GREEN + "\n# First Server Type: " + firstServerType + ", First Server ID: "
+                            + firstServerID + "\n" + ANSI_RESET);
 
                     dout.write(("OK\n").getBytes());
                     dout.flush();
