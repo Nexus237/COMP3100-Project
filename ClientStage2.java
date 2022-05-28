@@ -39,7 +39,6 @@ public class ClientStage2 {
                 dout.write(("AUTH " + username + "\n").getBytes());
                 dout.flush();
                 System.out.println("SENT: 'AUTH " + username + "'");
-                dout.flush();
 
                 str = (String) din.readLine();
                 System.out.println("RCVD: '" + str + "'");
@@ -79,8 +78,6 @@ public class ClientStage2 {
                                                              // the server
                     System.out.println(ANSI_GREEN + "\n# Number of Records: " + records + "\n" + ANSI_RESET);
 
-                    // currCommand = str.split(" ");
-
                     if (records == 0) {
                         dout.write(("OK\n").getBytes());
                         dout.flush();
@@ -106,13 +103,8 @@ public class ClientStage2 {
                     dout.flush();
                     System.out.println("SENT: 'OK'");
 
-                    // String largestServerType = ""; // Stores the largest server type (based on
-                    // core count)
                     String firstServerType = ""; // Stores the first server type
-                    // int largestCore = 0; // Largest server core count that can run the job
-                    // int numLargestType = 0; // Number of the largest server type that can run the
-                    // job
-                    int firstServerID = 0;
+                    int firstServerID = 0; // Stores the first server ID
 
                     // Print jobs list
                     for (int i = 0; i < records; i++) {
@@ -120,17 +112,6 @@ public class ClientStage2 {
                         System.out.println("RCVD: '" + str + "'");
 
                         String[] currServer = str.split(" ");
-
-                        // Compare the current server core count to the largest server core count
-                        // if (largestCore < currCore) {
-                        // largestServerType = currServer[0];
-                        // largestCore = Integer.parseInt(currServer[4]);
-                        // }
-
-                        // Checks for the number of servers of the largest server type
-                        // if (currServerType.equals(firstServerType)) {
-                        // numFirstType = Integer.parseInt(currServer[1]);
-                        // }
 
                         if (i == 0) {
                             firstServerType = currServer[0];
@@ -148,28 +129,12 @@ public class ClientStage2 {
                     str = (String) din.readLine();
                     System.out.println("RCVD: '" + str + "'");
 
-                    // int jobID = 0;
-                    // int serverID = 0;
-
-                    // Job Scheduling
-                    // while (!(currCommandType.equals("NONE"))) {
-                    // if (currCommandType.equals("JOBN")) {
-
                     dout.write(("SCHD " + jobID + " " + firstServerType + " " + firstServerID + "\n").getBytes());
                     dout.flush();
                     System.out.println("SENT: 'SCHD " + jobID + " " + firstServerType + " " + firstServerID + "'");
 
                     str = (String) din.readLine();
                     System.out.println("RCVD: '" + str + "'");
-
-                    // // Checks if the server ID is currently the last server ID of the largest
-                    // server type
-                    // if (serverID + 1 <= numLargestType) {
-                    // serverID++;
-                    // } else {
-                    // serverID = 0;
-                    // }
-                    // }
 
                     dout.write(("REDY\n").getBytes());
                     dout.flush();
@@ -180,7 +145,6 @@ public class ClientStage2 {
 
                     currCommand = str.split(" "); // Split the received command (Checking for 'JOBN' or 'NONE')
                     currCommandType = currCommand[0];
-                    // }
 
                     while (currCommandType.equals("JCPL")) {
                         dout.write(("REDY\n").getBytes());
