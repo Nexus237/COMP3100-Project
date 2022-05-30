@@ -1,4 +1,4 @@
-# COMP3100 - Project
+# COMP3100 - Distributed Systems (Project)
 > **Name**: Rohan Eapen George
 >
 > **Student ID**: 45664609
@@ -18,19 +18,20 @@
 
 ## Initial Configuration
 <div id="configuration"></div>
+
 1. Clone the repository
 
    ```sh
    git clone https://github.com/Nexus237/COMP3100-Project.git
    ```
 2. Change directory to the repository
-
    ```sh
    cd COMP3100-Project
    ```
 
 ## Usage (For Stage #1)
 <div id="stage1"></div>
+
 1. Compile the client-side simulator (Client.java) - 
 
    ```sh
@@ -65,6 +66,7 @@
 
 ## Usage (For Stage #2)
 <div id="stage2"></div>
+
 1. Compile the client-side simulator (ClientStage2.java) - 
 
    ```sh
