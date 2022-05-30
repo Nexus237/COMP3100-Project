@@ -75,12 +75,12 @@
 2. Run the client-side simulator (ClientStage2.java):
    - To run the stage2 test script:
 
-      ```sh
-      chmod +x ds-client ds-server
-      ```
       Requires unzip to be installed on the system - `sudo apt-get install unzip`
       ```sh
       unzip stage2-test.zip
+      ```
+      ```sh
+      chmod +x ds-client ds-server stage2-test-x86
       ```
       ```sh
       ./stage2-test-x86 "java ClientStage2" -o tt -n
